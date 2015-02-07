@@ -1,7 +1,8 @@
 #' Outputting HTML tables
 #'
 #' This is a function for outputting a more advanced
-#' table than \pkg{xtable} or \pkg{knitr}'s \code{kable} allows.
+#' table than what \pkg{xtable}, \pkg{ztable}, or \pkg{knitr}'s
+#' \code{\link[knitr]{kable}()} allows.
 #' It's aim is to provide the \pkg{Hmisc} \code{\link[Hmisc]{latex}()}
 #' colgroup and rowgroup functions in HTML. The html-output is designed for
 #' maximum compatibility with LibreOffice/OpenOffice.
@@ -18,14 +19,29 @@
 #' the "second" spans the last three columns, "a" spans the first two, "b"
 #' the middle column, and "c" the last two columns.
 #'
+#' @section The add attribute to \code{rgroup}:
+#'
+#' You can now have an additional element at the rgroup level by specifying the
+#' \code{att(rgroup, 'add')}. The value can either be a vector or a list of the
+#' same length as the rgroup or a list/vector with names corresponding to integers
+#' within the rgroup span.
 #'
 #' @section Important \pkg{knitr}-note:
 #'
-#' This funciton will only work with \pkg{knitr} outputting html, i.e.
-#' markdown mode. For each section where you want a table to be outputted
-#' you need to specify: \code{results="asis"}. As the function returns
-#' raw html-code the compatibility with non-html formatting is limited,
+#' This funciton will only work with \pkg{knitr} outputting \emph{html}, i.e.
+#' markdown mode. As the function returns raw html-code
+#' the compatibility with non-html formatting is limited,
 #' even with \href{http://johnmacfarlane.net/pandoc/}{pandoc}.
+#'
+#' Thanks to the the \code{\link[knitr]{knit_print}} and the
+#' \code{\link[knitr]{asis_output}}
+#' the \code{results='asis'} is \emph{no longer needed} except within for-loops.
+#' If you have a knitr-chunk with a for loop and use \code{print()} to produce
+#' raw html you must set the chunk option \code{results='asis'}. \code{Note}:
+#' the print-function relies on the \code{\link[base]{interactive}()} function
+#' for determining if the output should be sent to a browser or to the terminal.
+#' In vignettes and other directly knitted documents you may need to either set
+#' \code{useViewer = FALSE} alternatively set \code{options(htmlTable.cat = TRUE)}.
 #'
 #' @section Table counter:
 #'
@@ -42,6 +58,7 @@
 #' then the table counter will use Roman numumerals instead of Arabic.
 #'
 #' @section Possible issues:
+#'
 #' Note that when using complex cgroup alignments with multiple levels
 #' not every browser is able to handle this. For instance the RStudio
 #' webkit browser seems to have issues with this and a
@@ -49,15 +66,16 @@
 #'
 #' As the table uses html for rendering you need to be aware of that headers,
 #' rownames, and cell values should try respect this for optimal display. Browsers
-#' try to compensate and frequently the tables still turn out OK but it is
+#' try to compensate and frequently the tables still turn out fine but it is
 #' not advized. Most importantly you should try to use
 #' \code{&lt;} instead of \code{<} and
 #' \code{&gt;} instead of \code{>}. You can find a complete list
 #' of html characters \href{http://ascii.cl/htmlcodes.htm}{here}.
 #'
-#' @param x The matrix/data.frame with the data
+#' @param x The matrix/data.frame with the data. For the \code{print} and \code{knit_print}
+#'  it takes a string of the class \code{htmlTable} as \code{x} argument.
 #' @param header A vector of character strings specifying column
-#' header, defaulting to \code{\link[base]{colnames}(x)}
+#'  header, defaulting to \code{\link[base]{colnames}(x)}
 #' @param rnames Default rownames are generated from \code{\link[base]{rownames}(x)}. If you
 #'  provide \code{FALSE} then it will skip the rownames. \emph{Note:} For \code{data.frames}
 #'  if you do \code{\link[base]{rownames}(my_dataframe) <- NULL} it still has
@@ -70,9 +88,11 @@
 #' @param tfoot Adds a table footer (uses the \code{<tfoot>} html element). The
 #'  output is run through \code{\link{txtMergeLines}} simplifying the generation
 #'  of multiple lines.
-#' @param label a text string representing a symbolic label for the
+#' @param label A text string representing a symbolic label for the
 #'  table for referencing as an anchor. All you need to do is to reference the
-#'  table, for instance \code{<a href="#anchor_name">see table 2</a>}
+#'  table, for instance \code{<a href="#anchor_name">see table 2</a>}. This is
+#'  known as the element's id attribute, i.e. table id, in HTML linguo, and should
+#'  be unique id for an HTML element in contrast to the \code{css.class} element attribute.
 #'
 #' @param align A character strings specifying column alignments, defaulting to
 #'  \code{\link[base]{paste}(rep('c',ncol(x)),collapse='')} to center. Valid alignments are
@@ -100,15 +120,18 @@
 #'  to have a spanner then put that column as "". If you pass cgroup and \code{n.crgroup} as
 #'  matrices you can have column spanners for several rows. See cgroup section below for details.
 #' @param n.cgroup An integer vector or matrix containing the number of columns for which each element in
-#'  cgroup is a heading. For example, specify \code{cgroup=c("Major 1","Major 2")},
-#'  \code{n.cgroup=c(3,3)} if \code{"Major 1"} is to span columns 1-3 and
-#'  \code{"Major 2"} is to span columns 4-6.
+#'  cgroup is a heading. For example, specify \code{cgroup=c("Major_1","Major_2")},
+#'  \code{n.cgroup=c(3,3)} if \code{"Major_1"} is to span columns 1-3 and
+#'  \code{"Major_2"} is to span columns 4-6.
 #'  \code{rowlabel} does not count in the column numbers. You can omit \code{n.cgroup}
 #'  if all groups have the same number of columns.
 #' @param tspanner The table spanner is somewhat of a table header that
 #'  you can use when you want to join different tables with the same columns.
 #' @param n.tspanner An integer vector with the number of rows in the original matrix that
 #'  the table spanner should span.
+#' @param total The last row is sometimes a row total with a border on top and
+#'  bold fonts. Set this to \code{TRUE} if you are interested in such a row. If you
+#'  want a total row at the end of each table spanner you can set this to \code{"tspanner"}.
 #'
 #' @param css.rgroup CSS style for the rgorup, if different styles are wanted for each of the
 #'  rgroups you can just specify a vector with the number of elements
@@ -119,6 +142,7 @@
 #'  rgroup doesn't have a separator).
 #' @param css.tspanner The CSS style for the table spanner
 #' @param css.tspanner.sep The line between different spanners
+#' @param css.total The css of the total row
 #' @param css.cell The css.cell element allows you to add any possible CSS style to your
 #'  table cells. If you provide a vector the vector it is assummed that the styles should
 #'  be repeated throughout the columns. If you provide a matrix of the same size as your
@@ -145,7 +169,7 @@
 #' @param ... Passed on to \code{print.htmlTable} function and any argument except the
 #'  \code{useViewer} will be passed on to the \code{\link[base]{cat}} functions arguments.
 #'
-#' @param col.rgroup Alternating colors (zebra striping) for each \code{rgroup}; one or two colors
+#' @param col.rgroup Alternating colors (zebra striping/banded rows) for each \code{rgroup}; one or two colors
 #'  is recommended and will be recycled.
 #' @param col.columns Alternating colors for each column.
 #'
@@ -203,6 +227,8 @@ htmlTable.default <- function(x,
                               tspanner,
                               n.tspanner,
 
+                              total,
+
                               # Alignment
                               align = paste(rep('c',ncol(x)),collapse=''),
                               align.header= paste(rep('c',ncol(x)),collapse=''),
@@ -212,8 +238,10 @@ htmlTable.default <- function(x,
                               css.rgroup = "font-weight: 900;",
                               css.rgroup.sep = "",
 
-                              css.tspanner = "font-weight: 900; text-transform: capitalize; text-align: left;",
-                              css.tspanner.sep = "border-top: 1px solid grey;",
+                              css.tspanner = "font-weight: 900; text-align: left;",
+                              css.tspanner.sep = "border-top: 1px solid #BEBEBE;",
+
+                              css.total = "border-top: 1px solid #BEBEBE; font-weight: 900;",
 
                               css.cell = "",
                               css.cgroup = "",
@@ -272,7 +300,7 @@ htmlTable.default <- function(x,
 
   ## this will convert color names to hexadecimal (easier for user)
   ## but also leaves hex format unchanged
-  col.rgroup <- prPrepareColors(col.rgroup, nrow(x), n.rgroup)
+  col.rgroup <- prPrepareColors(col.rgroup, n = nrow(x), ng = n.rgroup, gtxt = rgroup)
   col.columns <- prPrepareColors(col.columns, ncol(x))
 
   # Unfortunately in knitr there seems to be some issue when the
@@ -477,6 +505,44 @@ htmlTable.default <- function(x,
     }
   }
 
+  if (missing(total) ||
+        (is.logical(total) &&
+           all(total == FALSE))){
+    total = c()
+  }else if (is.logical(total)){
+    if (length(total) == 1){
+      total <- nrow(x)
+    }else if(length(total) == nrow(x)){
+      total <- which(total)
+    }else if(!missing(n.tspanner) &&
+               length(total) == length(n.tspanner)){
+      total <- cumsum(n.tspanner)[total]
+    }else{
+      stop("You have provided an invalid 'total' argument:",
+           " '", paste(total, collapse="', '"), "'.",
+           " Logical values accepted are either single TRUE elements",
+           ", of the same length as the output matrix (", nrow(x), ")",
+           ", or of the same length as the tspanner (",
+           ifelse(missing(n.tspanner), "not provided", length(n.tspanner)), ").")
+    }
+  }else if (is.numeric(total)){
+    if (any(!total %in% 1:nrow(x)))
+      stop("You have indicated an invalid row as the total row.",
+           " Valid rows are only 1 to ", nrow(x),
+           " and you have provided invalid row(s): ",
+           "'", paste(total[!total %in% 1:nrow(x)], collapse="', '"), "'")
+  }else if (all(total == "tspanner")){
+    total <- cumsum(n.tspanner)
+  }else{
+    stop("You have provided an invalid 'total' argument:",
+         " '", paste(total, collapse="', '"), "' ",
+         " of the class ", class(total), ".",
+         " The function currently only accepts logical or numerical",
+         " values.")
+  }
+
+  css.total <- rep(css.total, length.out = length(total))
+
   css.cell <- prPrepareCss(x, css = css.cell,
                            rnames = rnames, header = header)
 
@@ -490,7 +556,7 @@ htmlTable.default <- function(x,
   # Theoretically this should be added to the table but the
   # import to word processors works then less well and therefore I've
   # constructed this work-around with borders for the top and bottom cells
-  first_row = TRUE;
+  first_row <- TRUE;
   if (ctable){
     top_row_style = "border-top: 2px solid grey;"
     bottom_row_style = "border-bottom: 2px solid grey;"
@@ -508,7 +574,7 @@ htmlTable.default <- function(x,
   # Add caption according to standard HTML
   if (!missing(caption) &
         compatibility != "LibreOffice"){
-    if (pos.caption == "bottom"){
+    if (pos.caption %in% c("bottom", "below")){
       table_str %<>%
         paste0("\n\t<caption style='caption-side: bottom'>")
     }else{
@@ -520,95 +586,34 @@ htmlTable.default <- function(x,
       paste0(caption, "</caption>")
   }
 
-  # Start the head
-  table_str %<>%
-    paste0("\n\t<thead>")
-
-  if (!missing(caption) &
-        compatibility == "LibreOffice" &
-        pos.caption != "bottom"){
-
-    table_str %<>%
-      sprintf("%s\n\t<tr><td colspan='%d' style='text-align: left;'>%s</td></tr>",
-              .,
-              total_columns,
-              caption)
-  }
-
-  # Add the cgroup table header
-  if (!missing(cgroup)){
-
-    for (i in 1:nrow(cgroup)){
-      cgrp_str <- prGetCgroupHeader(x = x,
-                                    cgroup_vec = cgroup[i,],
-                                    n.cgroup_vec = n.cgroup[i,],
-                                    cgroup_vec.just = align.cgroup[i, ],
-                                    css.cgroup_vec = css.cgroup[i,],
-                                    row_no = i,
-                                    top_row_style = top_row_style,
-                                    rnames = rnames,
-                                    rowlabel = rowlabel,
-                                    pos.rowlabel = pos.rowlabel,
-                                    cgroup_spacer_cells = cgroup_spacer_cells,
-                                    css.cell = css.cell)
-      table_str %<>%
-        paste0(cgrp_str)
-    }
+  if (!missing(header) ||
+        !missing(cgroup)){
+    thead <- prGetThead(x = x,
+                        header = header,
+                        cgroup = cgroup,
+                        n.cgroup = n.cgroup,
+                        caption = caption,
+                        pos.caption = pos.caption,
+                        compatibility = compatibility,
+                        total_columns = total_columns,
+                        align.cgroup = align.cgroup,
+                        css.cgroup = css.cgroup,
+                        top_row_style = top_row_style,
+                        rnames = rnames,
+                        rowlabel = rowlabel,
+                        pos.rowlabel = pos.rowlabel,
+                        cgroup_spacer_cells = cgroup_spacer_cells,
+                        css.cell = css.cell,
+                        align.header = align.header,
+                        cell_style = cell_style)
     first_row <- FALSE
+    table_str %<>%
+      paste0(thead)
+
   }
 
-
-  # Add the header
-  if (!missing(header)){
-    # The bottom border was ment to be here but it doesn't
-    # work that well in the export
-    table_str %<>%
-      paste0("\n\t<tr>")
-
-    no_cgroup_rows <-
-      ifelse(!missing(cgroup),
-             nrow(cgroup),
-             0)
-    ts <- ifelse(no_cgroup_rows > 0, "", top_row_style)
-    if (!missing(rowlabel) && pos.rowlabel == no_cgroup_rows + 1){
-      table_str %<>% sprintf("%s\n\t\t<th style='%s'>%s</th>",
-                             .,
-                             prGetStyle(c(`font-weight` = 900,
-                                            `border-bottom` = "1px solid grey"),
-                                          ts,
-                                          attr(css.cell, "rnames")[1],
-                                          align=prGetAlign(align.header, 1)),
-                             rowlabel)
-    }else if(!prSkipRownames(rnames)){
-      table_str %<>% sprintf("%s\n\t\t<th style='%s'> </th>",
-                             .,
-                             prGetStyle(c(`border-bottom`="1px solid grey"),
-                                          ts))
-    }
-
-    cell_style= "border-bottom: 1px solid grey;"
-    if (first_row){
-      cell_style %<>%
-        c(top_row_style)
-    }
-
-    cell_str <- prAddCells(rowcells = header,
-                             cellcode = "th",
-                             align = align.header,
-                             style=cell_style,
-                             cgroup_spacer_cells = cgroup_spacer_cells,
-                             has_rn_col = !prSkipRownames(rnames)*1,
-                             css.cell = attr(css.cell, "header"))
-    table_str %<>%
-      paste0(cell_str, "\n\t</tr>")
-    first_row <- FALSE
-  }
-
-  #################################
-  # Close head and start the body #
-  #################################
   table_str %<>%
-    paste0("\n\t</thead><tbody>")
+    paste0("\n\t<tbody>")
 
   if (missing(rgroup))
     row_clrs <- col.rgroup
@@ -685,47 +690,21 @@ htmlTable.default <- function(x,
                   top_row_style)
         }
 
-        ## this will allow either css.rgroup or col.rgroup to
-        ## color the rgroup label rows
-        if (is.numeric(cspan.rgroup[rgroup_iterator]) &&
-              cspan.rgroup[rgroup_iterator] < ncol(x)){
+        rgroup_str <- prGetRgroupLine(x = x,
+                                      total_columns = total_columns,
+                                      rgroup = rgroup,
+                                      rgroup_iterator = rgroup_iterator,
+                                      cspan = cspan.rgroup[rgroup_iterator],
+                                      rnames = rnames,
+                                      style = rs,
+                                      align = align,
+                                      cgroup_spacer_cells = cgroup_spacer_cells,
+                                      col.columns = col.columns,
+                                      css.row = css.cell[row_nr,],
+                                      padding.tspanner = padding.tspanner)
 
-          true_span <- cspan.rgroup[rgroup_iterator] +
-            sum(cgroup_spacer_cells[0:(cspan.rgroup[rgroup_iterator]-
-                                         1*!prSkipRownames(rnames))])
-          table_str %<>%
-            sprintf("%s\n\t<tr><td colspan='%d' style='%s'>%s</td>",
-                    .,
-                    true_span,
-                    prGetStyle(rs),
-                    paste0(padding.tspanner,
-                           rgroup[rgroup_iterator]))
-
-          cols_left <- ncol(x) - (cspan.rgroup[rgroup_iterator] - 1*!prSkipRownames(rnames))
-          cell_str <- prAddCells(rowcells = rep("", ncol(x)),
-                                   cellcode = "td",
-                                   align = align,
-                                   style = rs,
-                                   cgroup_spacer_cells = cgroup_spacer_cells,
-                                   has_rn_col = !prSkipRownames(rnames)*1,
-                                   col.columns = col.columns,
-                                   offset = ncol(x) - cols_left + 1,
-                                   css.cell = css.cell[row_nr,])
-          table_str %<>%
-            paste0(cell_str)
-
-
-          table_str <- paste0(table_str, "</tr>")
-
-        }else{
-          table_str %<>%
-            sprintf("%s\n\t<tr><td colspan='%d' style='%s'>%s</td></tr>",
-                    .,
-                    total_columns,
-                    prGetStyle(rs),
-                    paste0(padding.tspanner,
-                           rgroup[rgroup_iterator]))
-        }
+        table_str %<>%
+          paste(rgroup_str)
 
         first_row <- FALSE
       }
@@ -744,6 +723,11 @@ htmlTable.default <- function(x,
     if (row_nr == nrow(x)){
       cell_style %<>%
         c(bottom_row_style)
+    }
+
+    if (row_nr %in% total){
+      cell_style %<>%
+        c(css.total[which(row_nr == total)])
     }
 
     if (prGetStyle(rs) == ""){
@@ -797,7 +781,7 @@ htmlTable.default <- function(x,
 
   if (!missing(caption) &
         compatibility == "LibreOffice" &
-        pos.caption == "bottom"){
+        pos.caption %in% c("bottom", "below")){
 
     table_str %<>%
       sprintf("%s\n\t<tr><td colspan='%d' style='text-align: left;'>%s</td></tr>",
@@ -827,6 +811,9 @@ htmlTable.default <- function(x,
   table_str %<>%
     paste0("\n</table>")
 
+  # Fix indentation issue with pandoc v1.13
+  table_str %<>% gsub("\t", "", .)
+
   class(table_str) <- c("htmlTable", class(table_str))
   attr(table_str, "...") <- list(...)
 
@@ -836,6 +823,15 @@ htmlTable.default <- function(x,
 #' @importFrom methods setClass
 setClass("htmlTable", contains = "character")
 
+
+#' @rdname htmlTable
+#' @importFrom knitr knit_print
+#' @importFrom knitr asis_output
+#' @export
+knit_print.htmlTable<- function(x, ...){
+  asis_output(x)
+}
+
 #' @rdname htmlTable
 #' @param useViewer If you are using RStudio there is a viewer thar can render
 #'  the table within that is envoced if in \code{\link[base]{interactive}} mode.
@@ -844,9 +840,9 @@ setClass("htmlTable", contains = "character")
 #'  viewer function, e.g. \code{useViewer = utils::browseUrl} if you want to
 #'  override the default RStudio viewer. Another option that does the same is to
 #'  set the \code{options(viewer=utils::browseUrl)} and it will default to that
-#'  particular viewer (this is how RStudio decides on a viewer). \emph{Note:} The
-#'  interactive is for instance not set to false when using \code{devtools::\link[devtools]{build_vignettes}()}
-#'  and for these special cases you can set the \code{\link[base]{options}(interactive = FALSE)}.
+#'  particular viewer (this is how RStudio decides on a viewer).
+#'  \emph{Note:} If you want to force all output to go through the
+#'  \code{\link[base]{cat}()} the set \code{\link[base]{options}(htmlTable.cat = TRUE)}.
 #' @export
 #' @importFrom utils browseURL
 print.htmlTable<- function(x, useViewer, ...){
@@ -864,7 +860,8 @@ print.htmlTable<- function(x, useViewer, ...){
   # useViewer parameter
   if (missing(useViewer)){
     if ("useViewer" %in% names(args) &&
-      is.logical(args$useViewer)){
+      (is.logical(args$useViewer) ||
+         is.function(args$useViewer))){
         useViewer <- args$useViewer
         args$useViewer <- NULL
     }else{
@@ -873,7 +870,7 @@ print.htmlTable<- function(x, useViewer, ...){
   }
 
   if (interactive() &&
-        getOption("interactive", TRUE) &&
+        !getOption("htmlTable.cat", FALSE) &&
         (is.function(useViewer) ||
         useViewer != FALSE))
   {
@@ -915,6 +912,8 @@ print.htmlTable<- function(x, useViewer, ...){
     cat_args <- cat_args[names(cat_args) %in% names(formals(cat))[-1]]
     do.call(cat, c(x, cat_args))
   }
+
+  invisible(x)
 }
 
 #' Gets the last table number

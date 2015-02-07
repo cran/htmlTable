@@ -1,0 +1,15 @@
+---
+title: "Pandoc test"
+output:
+  html_document:
+---
+
+```{r}
+library(htmlTable)
+mx <- matrix(1, ncol=1)
+colnames(mx) <- c("A")
+rownames(mx) <- letters[1]
+htmlTable(mx)
+
+```
+

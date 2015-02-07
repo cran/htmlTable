@@ -65,46 +65,6 @@ test_that("Check that basic output are the same as the provided matrix",
               info="Some cells don't match the inputted cells")
 })
 
-test_that("Check that dimensions are correct with rgroup usage",
-{
-  mx <- matrix(1:6, ncol=3)
-  colnames(mx) <- sprintf("Col %s", LETTERS[1:NCOL(mx)])
-  table_str <-
-    suppressWarnings(htmlTable(mx,
-                               rgroup=c("test1", "test2"),
-                               n.rgroup=c(1,1)))
-  parsed_table <- readHTMLTable(table_str)[[1]]
-  expect_equal(ncol(parsed_table), ncol(mx), info="Cols did not match")
-  expect_equal(nrow(parsed_table), nrow(mx) + 2, info="Rows did not match")
-  expect_equal(as.character(parsed_table[1,1]),
-               "test1", info="The rgroup did not match")
-  expect_equal(as.character(parsed_table[3,1]),
-               "test2", info="The rgroup did not match")
-  expect_equal(as.character(parsed_table[2,1]),
-               as.character(mx[1,1]), info="The row values did not match")
-  expect_equal(as.character(parsed_table[4,1]),
-               as.character(mx[2,1]), info="The row values did not match")
-
-
-  expect_warning(htmlTable(mx,
-                           rgroup=c("test1", "test2", "test3"),
-                           n.rgroup=c(1,1, 0)))
-
-  expect_error(suppressWarnings(htmlTable(mx,
-                                          roup=c("test1", "test2", "test3"),
-                                          rgroup=c(1,1, 10))))
-
-  mx[2,1] <- "second row"
-  table_str <- htmlTable(mx,
-                         rnames=letters[1:2],
-                         rgroup=c("test1", ""),
-                         n.rgroup=c(1,1))
-  expect_match(table_str, "<td[^>]*>second row",
-               info="The second row should not have any spacers")
-
-  parsed_table <- readHTMLTable(table_str)[[1]]
-  expect_equal(nrow(parsed_table), nrow(mx) + 1, info="Rows did not match")
-})
 
 test_that("Check that dimensions are correct with cgroup usage",
 {
@@ -312,17 +272,32 @@ test_that("Check color function",{
                     c("#ffffff", "#444444", "#ffffff"))
 
   expect_null(attr(prPrepareColors(c("white", "#444444"), 3), "groups"))
-  expect_equivalent(attr(prPrepareColors(c("white", "#444444"), 3, c(2, 3, 1)), "groups")[[1]],
+  expect_equivalent(attr(prPrepareColors(c("white", "#444444"),
+                                         n = 3,
+                                         ng = c(2, 3, 1),
+                                         gtxt = c("a", "b", "c")), "groups")[[1]],
                     c("#ffffff", "#ffffff"))
-  expect_equivalent(attr(prPrepareColors(c("white", "#444444"), 3, c(2, 3, 1)), "groups")[[2]],
+  expect_equivalent(attr(prPrepareColors(c("white", "#444444"),
+                                         n = 3,
+                                         ng = c(2, 3, 1),
+                                         gtxt = c("a", "b", "c")), "groups")[[2]],
                     c("#444444", "#444444", "#444444"))
-  expect_equivalent(attr(prPrepareColors(c("white", "#444444"), 3, c(2, 3, 1)), "groups")[[3]],
+  expect_equivalent(attr(prPrepareColors(c("white", "#444444"),
+                                         n = 3,
+                                         ng = c(2, 3, 1),
+                                         gtxt = c("a", "b", "c")), "groups")[[3]],
                     c("#ffffff"))
 
-  expect_equivalent(attr(prPrepareColors(c("white", "#444444", "none"), 3, c(2, 3, 1)), "groups")[[3]],
+  expect_equivalent(attr(prPrepareColors(c("white", "#444444", "none"),
+                                         n = 3,
+                                         ng = c(2, 3, 1),
+                                         gtxt = c("a", "b", "c")), "groups")[[3]],
                     c("none"))
 
-  expect_equivalent(attr(prPrepareColors(c("white", "none"), 3, c(2, 3, 1)), "groups")[[2]],
+  expect_equivalent(attr(prPrepareColors(c("white", "none"),
+                                         n = 3,
+                                         ng = c(2, 3, 1),
+                                         gtxt = c("a", "b", "c")), "groups")[[2]],
                     c("none", "none", "none"))
 
   ## Test the merge colors
@@ -380,4 +355,16 @@ test_that("Test cell styles",{
                "b")
 
   expect_error(prPrepareCss(mx, mx_cell.style, rnames = mx_rnames))
+})
+
+test_that("Test prAddSemicolon2StrEnd",{
+  test_str <- "background: white"
+  expect_equal(prAddSemicolon2StrEnd(test_str),
+               paste0(test_str, ";"))
+  test_str <- c("", "", `background-color` = "none")
+  expect_equivalent(prAddSemicolon2StrEnd(test_str),
+                    paste0(test_str[3], ";"))
+
+  expect_equal(names(prAddSemicolon2StrEnd(test_str)),
+               names(test_str[3]))
 })

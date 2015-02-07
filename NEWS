@@ -1,5 +1,22 @@
 NEWS for the Gmisc package
 
+Changes for 1.1
+-----------------
+* Added the option of having an attribute on the rgroup in case there is an interest
+  of adding more data to that particular row
+* Added a fix for the pandoc tab bug
+* knit_print implemented removing the need for results='asis' except for within for-loops
+* Removed the capitalize tspanner css as this may cause confusion with limited word processor compatibility
+* Added htmlTable tests
+* txtRound now also rounds character matrices
+* Added a detailed vignette with the primary features of htmlTable
+* Added the option of having a total row
+* The pos.caption can now also be "below"
+* Fixed minor bug with numbering not beeing turned off with options(table_counter = FALSE)
+* Zebra striping now works for rgroups mixed with ""
+* txtRound returns "" by default if value missing. This can also be specified with the
+  txt.NA option
+
 Changes for 1.0
 -----------------
 * The htmlTable and associated txt-functions are now separated from Gmisc
