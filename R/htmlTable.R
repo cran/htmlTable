@@ -205,7 +205,6 @@ htmlTable <- function(x, ...){
 
 #' @importFrom stringr str_trim
 #' @importFrom stringr str_replace
-#' @importFrom Hmisc format.df
 #' @import magrittr
 #' @rdname htmlTable
 #' @export
@@ -476,23 +475,14 @@ htmlTable.default <- function(x,
 
   pos.rowlabel <- prGetRowlabelPos(cgroup, pos.rowlabel, header)
 
-  # Not quite as intended but close enough
-  if(length(dots) > 0){
-    f.df_args <- dots
-    f.df_args[["x"]] <- x
-    f.df_args[["numeric.dollar"]] <- FALSE
-    x <- do.call(format.df, f.df_args)
-    rm(f.df_args)
-  }
-  # Remove some specifics for LaTeX
-  if (is.character(x)) x <- matrix(str_replace(x, "\\\\%", "%"), ncol=ncol(x))
-
   # The id works just as well as any anchor
   table_id <- ""
   if (!missing(label)){
     table_id <- sprintf(" id='%s'", label)
   }else if(is.numeric(getOption("table_counter", FALSE))){
-    table_id <- sprintf(" id='table_%d'", getOption("table_counter"))
+    table_id <- getOption("table_counter")
+    options(table_counter = table_id + 1)
+    table_id <- sprintf(" id='table_%d'", table_id)
   }
 
   # A column counter that is used for <td colspan="">

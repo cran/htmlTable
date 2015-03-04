@@ -173,7 +173,32 @@ htmlTable(out_mx,
                                 "&Delta;<sub>std</sub> corresponds to the change compared to national average"),
           cspan.rgroup = 1)
 
-## ------------------------------------------------------------------------
+## ----, message=FALSE, results='asis'-------------------------------------
+library(ztable)
+options(ztable.type="html")
+zt <- ztable(out_mx, 
+             caption = "Average age in Sweden counties over a period of
+             15 years. The Norbotten county is typically known
+             for having a negative migration pattern compared to
+             Stockholm, while Uppsala has a proportionally large 
+             population of students.",
+             zebra.type = 1,
+             zebra = "peach",
+             align=paste(rep("r", ncol(out_mx) + 1), collapse = ""))
+# zt <- addcgroup(zt,
+#                 cgroup = cgroup,
+#                 n.cgroup = n.cgroup)
+# Causes an error:
+# Error in if (result <= length(vlines)) { : 
+zt <- addrgroup(zt, 
+                rgroup = c("1st&nbsp;period", 
+                           "2nd&nbsp;period",
+                           "3rd&nbsp;period"),
+                n.rgroup = rep(5, 3))
+
+print(zt)
+
+## ----, results='asis'----------------------------------------------------
 output <- 
   matrix(sprintf("Content %s", LETTERS[1:4]),
          ncol=2, byrow=TRUE)
