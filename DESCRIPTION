@@ -1,6 +1,6 @@
 Package: htmlTable
-Version: 1.5
-Date: 2016-01-18
+Version: 1.6
+Date: 2016-07-24
 Title: Advanced Tables for Markdown/HTML
 Author: Max Gordon <max@gforge.se>
 Maintainer: Max Gordon <max@gforge.se>
@@ -15,11 +15,12 @@ URL: http://gforge.se/packages/
 BugReports: https://github.com/gforge/htmlTable/issues
 Biarch: yes
 Imports: stringr, knitr (>= 1.6), magrittr (>= 1.5), methods
-Suggests: testthat, XML, xtable, ztable, Hmisc, reshape, rmarkdown
+Suggests: testthat, XML, xtable, ztable, Hmisc, reshape, rmarkdown,
+        pander
 Encoding: UTF-8
 NeedsCompilation: no
 VignetteBuilder: knitr
 RoxygenNote: 5.0.1
-Packaged: 2016-01-18 20:36:51 UTC; Max
+Packaged: 2016-07-24 09:42:47 UTC; max
 Repository: CRAN
-Date/Publication: 2016-01-18 22:22:51
+Date/Publication: 2016-07-24 16:18:25
