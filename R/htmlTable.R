@@ -95,6 +95,9 @@
 #' specifies the style for the header of \code{x}; also the number of columns of \code{css.cell}
 #' can be \code{ncol(x) + 1} to include the specification of style for row names of \code{x}.
 #'
+#' Note that the \code{text-align} CSS field in the \code{css.cell} argument will be overriden
+#' by the \code{align} argument.
+#'
 #'@section Empty dataframes:
 #' An empty dataframe will result in a warning and output an empty table, provided that
 #' rgroup and n.rgroup are not specified. All other row layout options will be ignored.
@@ -891,7 +894,8 @@ htmlTable.default <- function(x,
   # Fix indentation issue with pandoc v1.13
   table_str %<>% gsub("\t", "", .)
 
-  class(table_str) <- c("htmlTable", class(table_str))
+  class(table_str) <- c("html", "htmlTable", class(table_str))
+  attr(table_str, "html") <- TRUE
   attr(table_str, "...") <- list(...)
 
   return(table_str)
@@ -982,19 +986,19 @@ print.htmlTable<- function(x, useViewer, ...){
   # useViewer parameter
   if (missing(useViewer)){
     if ("useViewer" %in% names(args) &&
-      (is.logical(args$useViewer) ||
+        (is.logical(args$useViewer) ||
          is.function(args$useViewer))){
-        useViewer <- args$useViewer
-        args$useViewer <- NULL
+      useViewer <- args$useViewer
+      args$useViewer <- NULL
     }else{
       useViewer <- TRUE
     }
   }
 
   if (interactive() &&
-        !getOption("htmlTable.cat", FALSE) &&
-        (is.function(useViewer) ||
-        useViewer != FALSE))
+      !getOption("htmlTable.cat", FALSE) &&
+      (is.function(useViewer) ||
+       useViewer != FALSE))
   {
     if (is.null(args$file)){
       args$file <- tempfile(fileext=".html")
@@ -1022,7 +1026,7 @@ print.htmlTable<- function(x, useViewer, ...){
     }else{
       viewer <- getOption("viewer")
       if (!is.null(viewer) &&
-            is.function(viewer)){
+          is.function(viewer)){
         # (code to write some content to the file)
         viewer(args$file)
       }else{
