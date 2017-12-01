@@ -66,6 +66,15 @@
 #' In vignettes and other directly knitted documents you may need to either set
 #' \code{useViewer = FALSE} alternatively set \code{options(htmlTable.cat = TRUE)}.
 #'
+#' @section RStudio's notebook:
+#'
+#' RStudio has an interactive notebook that allows output directly into the document.
+#' In order for the output to be properly formatted it needs to have the \code{class}
+#' of \code{html}. The \code{htmlTable} tries to identify if the environment is a
+#' notebook document (uses the rstudio api and identifies if its a file with and `Rmd`
+#' file ending or if ther is an element with `html_notebook`). If you don't want this
+#' behaviour you can remove it using the `options(htmlTable.skip_notebook = TRUE)`
+#'
 #' @section Table counter:
 #'
 #' If you set the option table_counter you will get a Table 1,2,3
@@ -251,6 +260,7 @@
 #'  (at least that is how my 2010 version behaves). You can additinally use the
 #'  \code{options(htmlTableCompat = "html")} if you want a change to apply
 #'  to the entire document.
+#' @param escape.html logical: should HTML characters be escaped? Defaults to TRUE.
 #' @return \code{string} Returns a string of class htmlTable
 #'
 #' @example inst/examples/htmlTable_example.R
@@ -269,6 +279,7 @@ htmlTable <- function(x, ...){
 
 #' @importFrom stringr str_trim
 #' @importFrom stringr str_replace
+#' @importFrom htmltools htmlEscape
 #' @import checkmate
 #' @import magrittr
 #' @rdname htmlTable
@@ -327,8 +338,15 @@ htmlTable.default <- function(x,
                               ctable = TRUE,
                               compatibility = getOption("htmlTableCompat", "LibreOffice"),
                               cspan.rgroup = "all",
+                              escape.html = TRUE,
                               ...)
 {
+  if (isTRUE(escape.html)) {
+    attributes_x <- attributes(x)
+    x <- lapply(x, htmlEscape)
+    attributes(x) <- attributes_x
+  }
+
   if (is.null(dim(x))){
     if (!is.numeric(x) && !is.character(x)){
       x <- as.character(x)
@@ -491,6 +509,43 @@ htmlTable.default <- function(x,
     }
   }
 
+  # Convert dimnames to something useful
+  if (!is.null(names(dimnames(x)))) {
+    # First dimname is always the variable name for the row
+    dimname4row <- names(dimnames(x))[1]
+    if (!is.null(dimname4row) && dimname4row != "") {
+      # Use rgroup or tspanner as this is visually more separated than rowlabel
+      # if these are available
+      if (missing(rgroup)) {
+        rgroup <- dimname4row
+        n.rgroup <- nrow(x)
+      } else if (missing(tspanner)) {
+        tspanner <- dimname4row
+        n.tspanner <- nrow(x)
+      } else if (missing(rowlabel)) {
+        rowlabel <- dimname4row
+      }
+    }
+
+    # Second dimname is always the variable name for the columns
+    dimname4col <- names(dimnames(x))[2]
+    if (!is.null(dimname4col) && dimname4col != "") {
+      # Use rgroup or tspanner as this is visually more separated than rowlabel
+      # if these are available
+      if (missing(cgroup)) {
+        cgroup <- dimname4col
+        n.cgroup <- ncol(x)
+
+        # If this is a addmargins object we shouldn't have the cspanner including the
+        # sum marker
+        if (!missing(total) && total &&
+            grepl("^sum$", tail(colnames(x), 1), ignore.case = TRUE)) {
+          cgroup %<>% c("")
+          n.cgroup <- c(n.cgroup[1] -1, 1)
+        }
+      }
+    }
+  }
 
   # Sanity check for tspanner
   if (!missing(tspanner)){
@@ -697,7 +752,7 @@ htmlTable.default <- function(x,
   tspanner_iterator <- 0
   if(nrow(x) > 0){
   for (row_nr in 1:nrow(x)){
-    rname_style = attr(css.cell, "rnames")[row_nr + !prSkipRownames(rnames)]
+    rname_style = attr(css.cell, "rnames")[row_nr]
 
     # First check if there is a table spanner that should be applied
     if (!missing(tspanner) &&
@@ -837,7 +892,7 @@ htmlTable.default <- function(x,
       table_str %<>%
         sprintf("%s\n\t\t<td style='%s'>%s%s</td>",
                 .,
-                prGetStyle(cell_style,
+                prGetStyle(c(rname_style, cell_style),
                              align=prGetAlign(align, 1)),
                 pdng,
                 rnames[row_nr])
@@ -894,11 +949,40 @@ htmlTable.default <- function(x,
   # Fix indentation issue with pandoc v1.13
   table_str %<>% gsub("\t", "", .)
 
-  class(table_str) <- c("html", "htmlTable", class(table_str))
-  attr(table_str, "html") <- TRUE
+  class(table_str) <- c("htmlTable", class(table_str))
   attr(table_str, "...") <- list(...)
 
+  # Add html class if this is a table inside a notebook for inline output
+  if (!getOption('htmlTable.skip_notebook', FALSE) && prIsNotebook()) {
+    class(table_str) <- c("html", class(table_str))
+    attr(table_str, "html") <- TRUE
+  }
   return(table_str)
+}
+
+#' Detects if the call is made from within an RStudio Rmd file or a file
+#' with the html_notebook output set.
+#' @importFrom rstudioapi isAvailable getActiveDocumentContext
+#' @keywords internal
+prIsNotebook <- function() {
+  if (!isAvailable()) {
+    return(FALSE)
+  }
+
+  ctxt <- getActiveDocumentContext()
+  if (grepl("\\.Rmd$", ctxt$path)) {
+    return(TRUE)
+  }
+
+  # Look for html_notebook within the header if the file hasn't been saved
+  contents <- ctxt$contents
+  header <- grep("^---$", contents)
+  if (length(header) == 2) {
+    return(any(grepl("html_notebook$",
+                     contents[min(header) : max(header)])))
+  }
+
+  return(FALSE)
 }
 
 #' Convert all factors to characters to print them as they expected
@@ -938,12 +1022,19 @@ htmlTable.data.frame <- function(x, ...) {
 }
 
 #' @export
-htmlTable.matrix <- function(x, ...) {
-  # deal gracefully with an empty dataframe - issue a warning.
+htmlTable.matrix <- function(x, total, ...) {
+  # deal gracefully with an empty matrix - issue a warning.
   if(nrow(x) == 0){
     warning(paste(deparse(substitute(x)), "is an empty object"))
   }
-  htmlTable.default(x,...)
+
+  if (all(class(x) == c("table", "matrix")) &&
+      grepl("^sum$", tail(rownames(x), 1), ignore.case = TRUE) &&
+      missing(total)) {
+    total = TRUE
+  }
+
+  htmlTable.default(x, total = total, ...)
 }
 
 #' @importFrom methods setClass

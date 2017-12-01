@@ -23,7 +23,7 @@ htmlTable(x, ...)
   col.columns = "none", padding.rgroup = "&nbsp;&nbsp;",
   padding.tspanner = "", ctable = TRUE,
   compatibility = getOption("htmlTableCompat", "LibreOffice"),
-  cspan.rgroup = "all", ...)
+  cspan.rgroup = "all", escape.html = TRUE, ...)
 
 \method{knit_print}{htmlTable}(x, ...)
 
@@ -172,6 +172,8 @@ to the entire document.}
 by default all columns but you may want to limit this if you have column colors
 that you want to retain.}
 
+\item{escape.html}{logical: should HTML characters be escaped? Defaults to TRUE.}
+
 \item{useViewer}{If you are using RStudio there is a viewer thar can render
 the table within that is envoced if in \code{\link[base]{interactive}} mode.
 Set this to \code{FALSE} if you want to remove that  functionality. You can
@@ -261,6 +263,17 @@ In vignettes and other directly knitted documents you may need to either set
 \code{useViewer = FALSE} alternatively set \code{options(htmlTable.cat = TRUE)}.
 }
 
+\section{RStudio's notebook}{
+
+
+RStudio has an interactive notebook that allows output directly into the document.
+In order for the output to be properly formatted it needs to have the \code{class}
+of \code{html}. The \code{htmlTable} tries to identify if the environment is a
+notebook document (uses the rstudio api and identifies if its a file with and `Rmd`
+file ending or if ther is an element with `html_notebook`). If you don't want this
+behaviour you can remove it using the `options(htmlTable.skip_notebook = TRUE)`
+}
+
 \section{Table counter}{
 
 
@@ -340,6 +353,7 @@ not advized. Most importantly you should try to use
 \code{&gt;} instead of \code{>}. You can find a complete list
 of html characters \href{http://ascii.cl/htmlcodes.htm}{here}.
 }
+
 \examples{
 # Store all output into a list in order to
 # output everything at once at the end
@@ -429,4 +443,3 @@ concatHtmlTables(all_tables)
 Other table functions: \code{\link{tblNoLast}},
   \code{\link{tblNoNext}}
 }
-
