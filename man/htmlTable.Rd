@@ -23,7 +23,7 @@ htmlTable(x, ...)
   col.columns = "none", padding.rgroup = "&nbsp;&nbsp;",
   padding.tspanner = "", ctable = TRUE,
   compatibility = getOption("htmlTableCompat", "LibreOffice"),
-  cspan.rgroup = "all", escape.html = TRUE, ...)
+  cspan.rgroup = "all", escape.html = FALSE, ...)
 
 \method{knit_print}{htmlTable}(x, ...)
 
@@ -172,15 +172,15 @@ to the entire document.}
 by default all columns but you may want to limit this if you have column colors
 that you want to retain.}
 
-\item{escape.html}{logical: should HTML characters be escaped? Defaults to TRUE.}
+\item{escape.html}{logical: should HTML characters be escaped? Defaults to FALSE.}
 
 \item{useViewer}{If you are using RStudio there is a viewer thar can render
 the table within that is envoced if in \code{\link[base]{interactive}} mode.
 Set this to \code{FALSE} if you want to remove that  functionality. You can
 also force the function to call a specific viewer by setting this to a
-viewer function, e.g. \code{useViewer = utils::browseUrl} if you want to
+viewer function, e.g. \code{useViewer = utils::browseURL} if you want to
 override the default RStudio viewer. Another option that does the same is to
-set the \code{options(viewer=utils::browseUrl)} and it will default to that
+set the \code{options(viewer=utils::browseURL)} and it will default to that
 particular viewer (this is how RStudio decides on a viewer).
 \emph{Note:} If you want to force all output to go through the
 \code{\link[base]{cat}()} the set \code{\link[base]{options}(htmlTable.cat = TRUE)}.}

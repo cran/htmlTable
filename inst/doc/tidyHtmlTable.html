@@ -12,7 +12,7 @@
 
 <meta name="author" content="Stephen Gragg" />
 
-<meta name="date" content="2017-12-27" />
+<meta name="date" content="2018-01-20" />
 
 <title>Using tidyHtmlTable</title>
 
@@ -70,7 +70,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Using tidyHtmlTable</h1>
 <h4 class="author"><em>Stephen Gragg</em></h4>
-<h4 class="date"><em>2017-12-27</em></h4>
+<h4 class="date"><em>2018-01-20</em></h4>
 
 
 
@@ -89,19 +89,19 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 <span class="kw">library</span>(htmlTable)
 <span class="kw">library</span>(tibble)
 
-td &lt;-<span class="st"> </span>mtcars %&gt;%
-<span class="st">    </span>rownames_to_column %&gt;%
-<span class="st">    </span><span class="kw">select</span>(rowname, cyl, gear, hp, mpg, qsec) %&gt;%
+td &lt;-<span class="st"> </span>mtcars <span class="op">%&gt;%</span>
+<span class="st">    </span>rownames_to_column <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">select</span>(rowname, cyl, gear, hp, mpg, qsec) <span class="op">%&gt;%</span>
 <span class="st">    </span><span class="kw">gather</span>(per_metric, value, hp, mpg, qsec)</code></pre></div>
 <p>Now we will compute 4 summary statistics for each of the 3 performance metrics. This will be further grouped by number of cylinders and gears.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tidy_summary &lt;-<span class="st"> </span>td %&gt;%
-<span class="st">    </span><span class="kw">group_by</span>(cyl, gear, per_metric) %&gt;%<span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tidy_summary &lt;-<span class="st"> </span>td <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">group_by</span>(cyl, gear, per_metric) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">    </span><span class="kw">summarise</span>(<span class="dt">Mean =</span> <span class="kw">round</span>(<span class="kw">mean</span>(value), <span class="dv">1</span>),
               <span class="dt">SD =</span> <span class="kw">round</span>(<span class="kw">sd</span>(value), <span class="dv">1</span>),
               <span class="dt">Min =</span> <span class="kw">round</span>(<span class="kw">min</span>(value), <span class="dv">1</span>),
-              <span class="dt">Max =</span> <span class="kw">round</span>(<span class="kw">max</span>(value), <span class="dv">1</span>)) %&gt;%
-<span class="st">    </span><span class="kw">gather</span>(summary_stat, value, Mean, SD, Min, Max) %&gt;%<span class="st"> </span>
-<span class="st">    </span>ungroup %&gt;%<span class="st"> </span>
+              <span class="dt">Max =</span> <span class="kw">round</span>(<span class="kw">max</span>(value), <span class="dv">1</span>)) <span class="op">%&gt;%</span>
+<span class="st">    </span><span class="kw">gather</span>(summary_stat, value, Mean, SD, Min, Max) <span class="op">%&gt;%</span><span class="st"> </span>
+<span class="st">    </span>ungroup <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">    </span><span class="kw">mutate</span>(<span class="dt">gear =</span> <span class="kw">paste</span>(gear, <span class="st">&quot;Gears&quot;</span>),
            <span class="dt">cyl =</span> <span class="kw">paste</span>(cyl, <span class="st">&quot;Cylinders&quot;</span>))</code></pre></div>
 <p>At this point, we are ready to implement the <code>htmlTable</code> function. Essentially, this constructs an html table using arguments similar to the <code>htmlTable</code> function. However, whereas <code>htmlTable</code> required the user to manually arrange the data and specify the column groups, headers, row names, row-groups, etc., each of these components of the table is mapped to a column within the input data.</p>
@@ -110,7 +110,7 @@ td &lt;-<span class="st"> </span>mtcars %&gt;%
 <h2>Output html table</h2>
 <div id="example-1" class="section level3">
 <h3>Example 1</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tidy_summary  %&gt;%<span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tidy_summary  <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">    </span><span class="kw">tidyHtmlTable</span>(<span class="dt">header =</span> <span class="st">&quot;gear&quot;</span>,
                  <span class="dt">cgroup1 =</span> <span class="st">&quot;cyl&quot;</span>,
                  <span class="dt">cell_value =</span> <span class="st">&quot;value&quot;</span>, 
@@ -613,7 +613,7 @@ NaN
 </div>
 <div id="example-2" class="section level3">
 <h3>Example 2</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tidy_summary  %&gt;%<span class="st"> </span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">tidy_summary  <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">    </span><span class="kw">tidyHtmlTable</span>(<span class="dt">header =</span> <span class="st">&quot;summary_stat&quot;</span>,
                  <span class="dt">cgroup1 =</span> <span class="st">&quot;per_metric&quot;</span>,
                  <span class="dt">cell_value =</span> <span class="st">&quot;value&quot;</span>, 
