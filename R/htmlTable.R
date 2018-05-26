@@ -95,8 +95,8 @@
 #' to your table cells.  \code{css.cell} can be either a vector or a matrix.
 #'
 #' If  \code{css.cell} is a \emph{vector}, it's assumed that the styles should be repeated
-#' throughout the columns (that is, each element in css.cell specify the style
-#' for the whole row of 'x').
+#' throughout the rows (that is, each element in css.cell specifies the style
+#' for a whole column of 'x').
 #'
 #' In the case of  \code{css.cell} being a \emph{matrix} of the same size of the \code{x} argument,
 #' each element of \code{x} gets the style from the corresponding element in css.cell.  Additionally,
@@ -277,8 +277,7 @@ htmlTable <- function(x, ...){
 
 `.` <- "magrittr RCM check issue"
 
-#' @importFrom stringr str_trim
-#' @importFrom stringr str_replace
+#' @importFrom stringr str_replace str_replace_all str_trim
 #' @importFrom htmltools htmlEscape
 #' @import checkmate
 #' @import magrittr
@@ -342,9 +341,7 @@ htmlTable.default <- function(x,
                               ...)
 {
   if (isTRUE(escape.html)) {
-    attributes_x <- attributes(x)
-    x <- lapply(x, htmlEscape)
-    attributes(x) <- attributes_x
+    x <- prEscapeHtml(x)
   }
 
   if (is.null(dim(x))){
