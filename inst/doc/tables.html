@@ -12,14 +12,14 @@
 
 <meta name="author" content="Max Gordon" />
 
-<meta name="date" content="2018-05-26" />
+<meta name="date" content="2019-01-02" />
 
 <title>Tables with htmlTable and some alternatives</title>
 
 
 
 <style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
+<style type="text/css" data-origin="pandoc">
 div.sourceCode { overflow-x: auto; }
 table.sourceCode, tr.sourceCode, td.lineNumbers, td.sourceCode {
   margin: 0; padding: 0; vertical-align: baseline; border: none; }
@@ -55,7 +55,29 @@ code > span.do { color: #ba2121; font-style: italic; } /* Documentation */
 code > span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
 code > span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
 code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+
 </style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' || rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
 
 
 
@@ -70,7 +92,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">Tables with htmlTable and some alternatives</h1>
 <h4 class="author"><em>Max Gordon</em></h4>
-<h4 class="date"><em>2018-05-26</em></h4>
+<h4 class="date"><em>2019-01-02</em></h4>
 
 
 <div id="TOC">
@@ -350,7 +372,7 @@ Age
                       <span class="st">&quot;&amp;Delta;&lt;sub&gt;int&lt;/sub&gt;&quot;</span>,
                       <span class="st">&quot;&amp;Delta;&lt;sub&gt;std&lt;/sub&gt;&quot;</span>), 
                     <span class="dt">times =</span> <span class="kw">ncol</span>(SCB))
-mx &lt;-<span class="st"> </span>mx[,<span class="kw">c</span>(<span class="op">-</span><span class="dv">3</span>, <span class="op">-</span><span class="dv">6</span>)]
+mx &lt;-<span class="st"> </span>mx[,<span class="kw">c</span>(<span class="op">-</span><span class="dv">3</span>, <span class="dv">-6</span>)]
 
 <span class="co"># This automated generation of cgroup elements is </span>
 <span class="co"># somewhat of an overkill</span>
@@ -6926,14 +6948,14 @@ Age
 </tfoot>
 </table>
 <p>If you want to further add to the visual hints you can use specific HTML-code and insert it into the cells. Here we will color the Δ<sub>std</sub> according to color. By default htmlTable does not escape HTML characters.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cols_2_clr &lt;-<span class="st"> </span><span class="kw">grep</span>(<span class="st">&quot;&amp;Delta;&lt;sub&gt;std&lt;/sub&gt;&quot;</span>, <span class="kw">colnames</span>(mx))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cols_<span class="dv">2</span>_clr &lt;-<span class="st"> </span><span class="kw">grep</span>(<span class="st">&quot;&amp;Delta;&lt;sub&gt;std&lt;/sub&gt;&quot;</span>, <span class="kw">colnames</span>(mx))
 <span class="co"># We need a copy as the formatting causes the matrix to loos</span>
 <span class="co"># its numerical property</span>
 out_mx &lt;-<span class="st"> </span><span class="kw">txtRound</span>(mx, <span class="dv">1</span>)
 
-min_delta &lt;-<span class="st"> </span><span class="kw">min</span>(mx[,cols_2_clr])
-span_delta &lt;-<span class="st"> </span><span class="kw">max</span>(mx[,cols_2_clr]) <span class="op">-</span><span class="st"> </span><span class="kw">min</span>(mx[,cols_2_clr]) 
-<span class="cf">for</span> (col <span class="cf">in</span> cols_2_clr){
+min_delta &lt;-<span class="st"> </span><span class="kw">min</span>(mx[,cols_<span class="dv">2</span>_clr])
+span_delta &lt;-<span class="st"> </span><span class="kw">max</span>(mx[,cols_<span class="dv">2</span>_clr]) <span class="op">-</span><span class="st"> </span><span class="kw">min</span>(mx[,cols_<span class="dv">2</span>_clr]) 
+<span class="cf">for</span> (col <span class="cf">in</span> cols_<span class="dv">2</span>_clr){
   out_mx[, col] &lt;-<span class="st"> </span><span class="kw">mapply</span>(<span class="cf">function</span>(val, strength)
     <span class="kw">paste0</span>(<span class="st">&quot;&lt;span style='font-weight: 900; color: &quot;</span>, 
            <span class="kw">colorRampPalette</span>(<span class="kw">c</span>(<span class="st">&quot;#009900&quot;</span>, <span class="st">&quot;#000000&quot;</span>, <span class="st">&quot;#990033&quot;</span>))(<span class="dv">101</span>)[strength],
@@ -9961,8 +9983,8 @@ Age
              <span class="dt">caption=</span><span class="st">&quot;A test table&quot;</span>, 
              <span class="dt">align =</span> <span class="kw">c</span>(<span class="st">&quot;l&quot;</span>, <span class="st">&quot;c&quot;</span>, <span class="st">&quot;r&quot;</span>)), 
       <span class="dt">type=</span><span class="st">&quot;html&quot;</span>)</code></pre></div>
-<!-- html table generated in R 3.4.4 by xtable 1.8-2 package -->
-<!-- Sat May 26 11:15:51 2018 -->
+<!-- html table generated in R 3.5.2 by xtable 1.8-3 package -->
+<!-- Wed Jan  2 16:13:38 2019 -->
 <table border="1">
 <caption align="bottom">
 A test table

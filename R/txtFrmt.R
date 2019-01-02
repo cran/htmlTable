@@ -178,6 +178,9 @@ txtPval <- function(pvalues,
 #' @param x The value/vector/data.frame/matrix to be rounded
 #' @param digits The number of digits to round each element to.
 #'  If you provide a vector each element will apply to the corresponding columns.
+#' @param digits.nonzero The number of digits to keep if the result is close to
+#'  zero. Sometimes we have an entire table with large numbers only to have a
+#'  few but interesting observation that are really interesting
 #' @param excl.cols Columns to exclude from the rounding procedure.
 #'  This can be either a number or regular expression. Skipped if x is a vector.
 #' @param excl.rows Rows to exclude from the rounding procedure.
@@ -207,6 +210,7 @@ txtRound <- function(x, ...){
 #' @rdname txtRound
 txtRound.default = function(x,
                             digits = 0,
+                            digits.nonzero = NA,
                             txt.NA = "",
                             dec = ".",
                             scientific,
@@ -220,7 +224,24 @@ txtRound.default = function(x,
          paste(x, collapse=", "))
 
   if (length(x) > 1) {
-    return(mapply(txtRound.default, x, digits, txt.NA, dec, ...))
+    return(mapply(txtRound.default,
+                  x = x,
+                  digits = digits,
+                  digits.nonzero = digits.nonzero,
+                  txt.NA = txt.NA,
+                  dec = dec,
+                  ...))
+  }
+
+  if (!is.na(digits.nonzero)) {
+    if (!is.numeric(digits.nonzero)
+        || floor(digits.nonzero) != digits.nonzero
+    ) {
+      stop("The digits.nonzero should be an integer, you provided: ", digits.nonzero)
+    }
+    if (digits.nonzero < digits) {
+      stop("The digits.nonzero must be smaller than digits")
+    }
   }
 
   dec_str <- sprintf("^[^0-9\\%s-]*([\\-]{0,1}(([0-9]*|[0-9]+[ 0-9]+)[\\%s]|)[0-9]+(e[+]{0,1}[0-9]+|))(|[^0-9]+.*)$",
@@ -246,6 +267,13 @@ txtRound.default = function(x,
       sub(dec_str, "\\1", x) %>%
       gsub(" ", "", .) %>%
       as.numeric
+  }
+
+  if (!is.na(digits.nonzero)) {
+    decimal_position <- floor(log10(x))
+    if (decimal_position < -digits && decimal_position >= -digits.nonzero) {
+      digits <- -decimal_position
+    }
   }
 
   if (round(x, digits) == 0)
@@ -276,6 +304,9 @@ txtRound.data.frame <- function(x, ...){
 #' @rdname txtRound
 #' @export
 txtRound.table <- function(x, ...){
+  if (is.na(ncol(x))) {
+    dim(x) <- c(1, nrow(x))
+  }
   return(txtRound.matrix(x, ...))
 }
 
@@ -295,7 +326,7 @@ txtRound.matrix <- function(x, digits = 0, excl.cols, excl.rows, ...){
       rows <- rows[-excl.rows]
   }
 
-  cols <- 1L:ncol(x)
+  cols <- 1L:(ifelse(is.na(ncol(x)), 1, ncol(x)))
   if (!missing(excl.cols)){
     if (is.character(excl.cols)){
       excl.cols <- grep(excl.cols, colnames(x))
@@ -322,59 +353,9 @@ txtRound.matrix <- function(x, digits = 0, excl.cols, excl.rows, ...){
   ret_x <- x
   for (row in rows){
     ret_x[row, cols] <-
-      mapply(txtRound, x[row, cols], digits,
-             ...,
-             USE.NAMES = FALSE)
-  }
-
-  return(ret_x)
-}
-
-
-#' @rdname txtRound
-#' @export
-txtRound.matrix <- function(x, digits = 0, excl.cols, excl.rows, ...){
-  if(length(dim(x)) > 2)
-    stop("The function only accepts vectors/matrices/data.frames as primary argument")
-
-  rows <- 1L:nrow(x)
-  if (!missing(excl.rows)){
-    if (is.character(excl.rows)){
-      excl.rows <- grep(excl.rows, rownames(x))
-    }
-
-    if (length(excl.rows) > 0)
-      rows <- rows[-excl.rows]
-  }
-
-  cols <- 1L:ncol(x)
-  if (!missing(excl.cols)){
-    if (is.character(excl.cols)){
-      excl.cols <- grep(excl.cols, colnames(x))
-    }
-
-    if (length(excl.cols) > 0)
-      cols <- cols[-excl.cols]
-  }
-
-  if (length(cols) == 0)
-    stop("No columns to round")
-
-  if (length(rows) == 0)
-    stop("No rows to round")
-
-  if(length(digits) != 1 & length(digits) != length(cols))
-    stop("You have ",
-         length(digits),
-         " digits specifications but ",
-         length(cols),
-         " columns to apply them to: ",
-         paste(cols, collapse = ", "))
-
-  ret_x <- x
-  for (row in rows){
-    ret_x[row, cols] <-
-      mapply(txtRound, x[row, cols], digits,
+      mapply(txtRound,
+             x = x[row, cols],
+             digits = digits,
              ...,
              USE.NAMES = FALSE)
   }
