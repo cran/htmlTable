@@ -12,7 +12,7 @@
 
 <meta name="author" content="Max Gordon" />
 
-<meta name="date" content="2019-01-02" />
+<meta name="date" content="2019-01-05" />
 
 <title>The htmlTable package</title>
 
@@ -92,7 +92,7 @@ code > span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Inf
 
 <h1 class="title toc-ignore">The htmlTable package</h1>
 <h4 class="author"><em>Max Gordon</em></h4>
-<h4 class="date"><em>2019-01-02</em></h4>
+<h4 class="date"><em>2019-01-05</em></h4>
 
 
 <div id="TOC">
@@ -2861,6 +2861,7 @@ Spanner C
 </tr>
 </tbody>
 </table>
+<p>Similarly you can use the number rgroups included in each tspanner instead of actual rows. This is convenient as the tspannners must align with underlying rgroups.</p>
 </div>
 <div id="total-row" class="section level2">
 <h2>Total row</h2>
@@ -4238,7 +4239,7 @@ Group B
           <span class="dt">rgroup =</span> rgroup,
           <span class="dt">n.rgroup =</span> <span class="kw">c</span>(<span class="dv">2</span>,<span class="dv">4</span>),
           <span class="dt">tspanner =</span> <span class="kw">paste</span>(<span class="st">&quot;Spanner&quot;</span>, LETTERS[<span class="dv">1</span><span class="op">:</span><span class="dv">2</span>]),
-          <span class="dt">n.tspanner =</span> <span class="kw">c</span>(<span class="dv">6</span>),
+          <span class="dt">n.tspanner =</span> <span class="kw">c</span>(<span class="dv">1</span>),
           <span class="dt">cgroup =</span> <span class="kw">list</span>(<span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Column spanners&quot;</span>),
                         <span class="kw">c</span>(<span class="st">&quot;&quot;</span>, <span class="st">&quot;Cgroup 1&quot;</span>, <span class="st">&quot;Cgroup 2&amp;dagger;&quot;</span>)),
           <span class="dt">n.cgroup =</span> <span class="kw">list</span>(<span class="kw">c</span>(<span class="dv">1</span>,<span class="dv">5</span>),
@@ -4411,6 +4412,11 @@ Group A
 </td>
 </tr>
 <tr>
+<td colspan="10" style="font-weight: 900; text-align: left; border-top: 1px solid #BEBEBE;">
+Spanner B
+</td>
+</tr>
+<tr>
 <td colspan="3" style="font-weight: 900; background-color: #f7f7f7;">
 Group B
 </td>
@@ -4557,11 +4563,6 @@ Group B
 </td>
 <td style="padding-left: .5em; padding-right: .2em; text-align: right; background-color: #F6F9FB;">
 6:6
-</td>
-</tr>
-<tr>
-<td colspan="10" style="font-weight: 900; text-align: left; border-top: 1px solid #BEBEBE;">
-Spanner B
 </td>
 </tr>
 <tr>
