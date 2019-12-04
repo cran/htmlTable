@@ -1,4 +1,4 @@
-## ---- message=FALSE------------------------------------------------------
+## ---- message=FALSE-----------------------------------------------------------
 library(magrittr)
 library(tidyr)
 library(dplyr)
@@ -11,7 +11,7 @@ td <- mtcars %>%
     gather(per_metric, value, hp, mpg, qsec)
 
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 tidy_summary <- td %>%
     group_by(cyl, gear, per_metric) %>% 
     summarise(Mean = round(mean(value), 1),
@@ -23,7 +23,7 @@ tidy_summary <- td %>%
     mutate(gear = paste(gear, "Gears"),
            cyl = paste(cyl, "Cylinders"))
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 tidy_summary  %>% 
     tidyHtmlTable(header = "gear",
                  cgroup1 = "cyl",
@@ -31,7 +31,7 @@ tidy_summary  %>%
                  rnames = "summary_stat",
                  rgroup = "per_metric")
 
-## ------------------------------------------------------------------------
+## -----------------------------------------------------------------------------
 tidy_summary  %>% 
     tidyHtmlTable(header = "summary_stat",
                  cgroup1 = "per_metric",
