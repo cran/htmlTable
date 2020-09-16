@@ -2,6 +2,8 @@
 library(htmlTable)
 library(magrittr)
 
+setHtmlTableTheme(theme = "Google docs")
+
 output <- 
   matrix(paste("Content", LETTERS[1:16]), 
          ncol = 4, byrow = TRUE)
@@ -103,7 +105,8 @@ htmlTable(txtRound(mx, 1),
 ## -----------------------------------------------------------------------------
 mx %>% 
   txtRound(digits = 1) %>% 
-  addHtmlTableStyle(align = "rrrr|r") %>% 
+  addHtmlTableStyle(align = "rrrr|r",
+                    spacer.celltype = "double_cell") %>% 
   htmlTable(cgroup = cgroup,
             n.cgroup = n.cgroup,
             rgroup = c("First period", 
@@ -117,6 +120,7 @@ mx %>%
 mx %>% 
   txtRound(digits = 1) %>% 
   addHtmlTableStyle(align = "rrrr|r",
+                    align.header = "c",
                     col.columns = c(rep("#E6E6F0", 4),
                           rep("none", ncol(mx) - 4))) %>% 
   htmlTable(cgroup = cgroup,
@@ -132,6 +136,7 @@ mx %>%
 mx %>% 
   txtRound(digits = 1) %>% 
   addHtmlTableStyle(align = "rrrr|r",
+                    align.header = "c",
                     col.columns = c(rep("#E6E6F0", 4),
                           rep("none", ncol(mx) - 4)),
                     col.rgroup = c("none", "#FFFFCC")) %>% 
@@ -169,6 +174,7 @@ for (col in cols_2_clr) {
 
 out_mx %>% 
   addHtmlTableStyle(align = "rrrr|r",
+                    align.header = "cccc|c",
                     pos.rowlabel = "bottom", 
                     col.rgroup = c("none", "#FFFFCC"),
                     col.columns = c(rep("#EFEFF0", 4),

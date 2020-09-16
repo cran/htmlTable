@@ -1,6 +1,5 @@
 Package: htmlTable
-Version: 2.0.1
-Date: 2020-07-05
+Version: 2.1.0
 Title: Advanced Tables for Markdown/HTML
 Authors@R: c(
   person("Max", "Gordon", email = "max@gforge.se",
@@ -15,7 +14,7 @@ Description: Tables with state-of-the-art layout elements such as row spanners,
     also contains a few text formatting functions that help outputting text
     compatible with HTML/LaTeX.
 License: GPL (>= 3)
-URL: http://gforge.se/packages/
+URL: https://gforge.se/packages/
 BugReports: https://github.com/gforge/htmlTable/issues
 Biarch: yes
 Imports: stringr, knitr (>= 1.6), magrittr (>= 1.5), methods,
@@ -27,9 +26,9 @@ Encoding: UTF-8
 NeedsCompilation: no
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
-Packaged: 2020-07-05 20:27:48 UTC; max
+Packaged: 2020-09-16 20:11:49 UTC; max
 Author: Max Gordon [aut, cre],
   Stephen Gragg [aut],
   Peter Konings [aut]
 Repository: CRAN
-Date/Publication: 2020-07-05 21:00:04 UTC
+Date/Publication: 2020-09-16 21:10:02 UTC
