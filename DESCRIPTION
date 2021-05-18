@@ -1,5 +1,5 @@
 Package: htmlTable
-Version: 2.1.0
+Version: 2.2.1
 Title: Advanced Tables for Markdown/HTML
 Authors@R: c(
   person("Max", "Gordon", email = "max@gforge.se",
@@ -26,9 +26,9 @@ Encoding: UTF-8
 NeedsCompilation: no
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
-Packaged: 2020-09-16 20:11:49 UTC; max
+Packaged: 2021-05-18 10:40:50 UTC; max
 Author: Max Gordon [aut, cre],
   Stephen Gragg [aut],
   Peter Konings [aut]
 Repository: CRAN
-Date/Publication: 2020-09-16 21:10:02 UTC
+Date/Publication: 2021-05-18 11:10:02 UTC
