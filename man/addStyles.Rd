@@ -182,13 +182,13 @@ copy-paste functionality. E.g. the style could be written as: \verb{css_matrix <
 }
 
 \examples{
-library(magrittr)
-matrix(1:4, ncol = 2) \%>\%
-  addHtmlTableStyle(align = "c", css.cell = "background-color: orange;") \%>\%
+matrix(1:4, ncol = 2) |>
+  addHtmlTableStyle(align = "c", css.cell = "background-color: orange;") |>
   htmlTable(caption = "A simple style example")
 }
 \seealso{
 Other htmlTableStyle: 
-\code{\link{hasHtmlTableStyle}()}
+\code{\link{hasHtmlTableStyle}()},
+\code{\link{highlightRow}()}
 }
 \concept{htmlTableStyle}

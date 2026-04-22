@@ -5,23 +5,23 @@ library(magrittr)
 matrix(1:4,
        ncol = 2,
        dimnames = list(c("Row 1", "Row 2"),
-                       c("Column 1", "Column 2"))) %>% 
-  htmlTable
+                       c("Column 1", "Column 2"))) |>
+  htmlTable()
 
 ## -----------------------------------------------------------------------------
 # A simple output
 matrix(1:4,
        ncol = 2,
        dimnames = list(rows = c("Row 1", "Row 2"),
-                       cols = c("Column 1", "Column 2"))) %>% 
-  htmlTable
+                       cols = c("Column 1", "Column 2"))) |>
+  htmlTable()
 
 ## -----------------------------------------------------------------------------
 data("mtcars")
 with(mtcars,
-     table(cyl, gear)) %>% 
-  addmargins %>%
-  htmlTable
+     table(cyl, gear)) |>
+  addmargins() |>
+  htmlTable()
 
 ## ----ctable_example-----------------------------------------------------------
 output <- matrix(1:4,
@@ -33,21 +33,21 @@ htmlTable(output,
           caption = "A table caption above and ctable borders")
 
 ## ----table_with_caption_below-------------------------------------------------
-output %>%
-  addHtmlTableStyle(pos.caption = "bottom") %>% 
+output |>
+  addHtmlTableStyle(pos.caption = "bottom") |>
   htmlTable(caption = "A table caption below")
 
 ## -----------------------------------------------------------------------------
-1:3 %>% 
-  addHtmlTableStyle(align = "lcr") %>% 
+1:3 |>
+  addHtmlTableStyle(align = "lcr") |>
   htmlTable(rnames = "Row 1",
             header = c("'l' = left", "'c' = center", "'r' = right"),
             caption = "The alignment is set through the align options. Available alternatives are l, r, c as designated by the below table.")
 
 ## -----------------------------------------------------------------------------
-1:3 %>% 
+1:3 |>
   addHtmlTableStyle(align = "clcr",
-                    align.header = "lcr") %>% 
+                    align.header = "lcr") |>
   htmlTable(rnames = "Row 1",
             header = c("'l' = left", "'c' = center", "'r' = right"),
             caption = "The alignment is set through the align options. Available alternatives are l, r, c as designated by the below table.")
@@ -81,8 +81,8 @@ htmlTable(mx,
           n.rgroup = c(2,4,nrow(mx) - 6))
 
 ## -----------------------------------------------------------------------------
-mx %>% 
-  addHtmlTableStyle(css.rgroup = "") %>% 
+mx |>
+  addHtmlTableStyle(css.rgroup = "") |>
   htmlTable(rgroup = c(paste("Group", LETTERS[1:2]), ""),
             n.rgroup = c(2,4,nrow(mx) - 6))
 
@@ -92,6 +92,18 @@ attr(rgroup, "add") <- list(`2` = "More")
 htmlTable(mx, 
           rgroup = rgroup,
           n.rgroup = c(2,4,nrow(mx) - 6))
+
+## -----------------------------------------------------------------------------
+df <- data.frame(
+  Name = c("Max", "Eva", "Nils"),
+  Score = c(10, 20, 30),
+  stringsAsFactors = FALSE
+)
+
+df |>
+  highlightRow(Name == "Max", style = "warning") |>
+  highlightRow(.rowname == "3", style = "background-color: #d1ecf1; color: #0c5460;") |>
+  htmlTable(rnames = FALSE)
 
 ## -----------------------------------------------------------------------------
 htmlTable(mx,
@@ -128,10 +140,10 @@ htmlTable(mx,
 htmlTable(mx[1:3,], total = TRUE)
 
 ## -----------------------------------------------------------------------------
-mx %>% 
+mx |>
   addHtmlTableStyle(css.total = c("border-top: 1px dashed grey;",
                                   "border-top: 1px dashed grey;",
-                                  "border-top: 1px solid grey; font-weight: 900")) %>% 
+                                  "border-top: 1px solid grey; font-weight: 900")) |>
   htmlTable(total = "tspanner",
             tspanner = paste("Spanner", LETTERS[1:3]),
             n.tspanner = c(2,4,nrow(mx) - 6))
@@ -159,32 +171,32 @@ htmlTable(mx[1:2,1:2],
           tfoot = "A table footer")
 
 ## -----------------------------------------------------------------------------
-mx %>% 
-  addHtmlTableStyle(col.rgroup = c("none", "#F7F7F7")) %>% 
-  htmlTable
+mx |>
+  addHtmlTableStyle(col.rgroup = c("none", "#F7F7F7")) |>
+  htmlTable()
 
 ## -----------------------------------------------------------------------------
-mx %>% 
-  addHtmlTableStyle(col.rgroup = c("none", "#F7F7F7")) %>% 
+mx |>
+  addHtmlTableStyle(col.rgroup = c("none", "#F7F7F7")) |>
   htmlTable(rgroup = c(paste("Group", LETTERS[1:2]), ""),
             n.rgroup = c(2,2,nrow(mx) - 4))
 
 ## -----------------------------------------------------------------------------
-mx %>% 
-  addHtmlTableStyle(col.columns = c("none", "#F7F7F7")) %>% 
-  htmlTable
+mx |>
+  addHtmlTableStyle(col.columns = c("none", "#F7F7F7")) |>
+  htmlTable()
 
 ## -----------------------------------------------------------------------------
-mx %>% 
+mx |>
   addHtmlTableStyle(col.rgroup = c("none", "#F9FAF0"),
-                    col.columns = c("none", "#F1F0FA")) %>% 
-  htmlTable
+                    col.columns = c("none", "#F1F0FA")) |>
+  htmlTable()
 
 ## -----------------------------------------------------------------------------
 rgroup = paste("Group", LETTERS[1:3])
 attr(rgroup, "add") <- list(`3` = "Group p-value < 0.001")
 
-mx %>% 
+mx |>
   addHtmlTableStyle(align = "rr|r",
                     align.header = "cc|c",
                     spacer.celltype = "double_cell",
@@ -192,7 +204,7 @@ mx %>%
                                     rep("#F5FBFF", 4)),
                     col.rgroup = c("none", "#F7F7F7"),
                     css.cell = "padding-left: .5em; padding-right: .2em;",
-                    css.header = "font-weight: normal") %>% 
+                    css.header = "font-weight: normal") |>
   htmlTable(rgroup = rgroup,
             n.rgroup = c(2,4),
             tspanner = paste("Spanner", LETTERS[1:2]),

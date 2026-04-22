@@ -28,7 +28,7 @@
 #'
 #'  The `rgroup` groups rows seamlessly. Each row in a group is indented by two
 #'  spaces (unless the rgroup is `""`) and grouped by its rgroup element. The `sum(n.rgroup)`
-#'  should be \if{html}{\out{≤}}\eqn{\leq} matrix rows. If fewer, remaining rows are padded with an empty rgroup (`""`). If `rgroup`
+#'  should be \eqn{\leq}{≤} matrix rows. If fewer, remaining rows are padded with an empty rgroup (`""`). If `rgroup`
 #'  has one more element than `n.rgroup`, the last `n.rgroup` is computed as `nrow(x) - sum(n.rgroup)`
 #'  for a smoother table generation.
 #'
@@ -152,9 +152,9 @@
 #'  it takes a string of the class `htmlTable` as `x` argument.
 #' @param header A vector of character strings specifying column
 #'  header, defaulting to [`colnames(x)`][base::colnames]
-#' @param rnames Default row names are generated from [`rownames(x)`][base::colnames]. If you
+#' @param rnames Default row names are generated from [`rownames(x)`][base::rownames]. If you
 #'  provide `FALSE` then it will skip the row names. *Note:* For `data.frames`
-#'  if you do [`rownames(my_dataframe) <- NULL`][base::colnames] it still has
+#'  if you do [`rownames(my_dataframe) <- NULL`][base::rownames] it still has
 #'  row names. Thus you need to use `FALSE` if you want to
 #'  supress row names for `data.frames`.
 #' @param rowlabel If the table has row names or `rnames`,
@@ -317,11 +317,12 @@ htmlTable.default <- function(x,
     x <- prEscapeHtml(x)
   }
 
+  x_orig <- x
   x <- prPrepInputMatrixDimensions(x, header = header)
   dots <- list(...)
   style_dots <- names(dots) %in% Filter(
     function(x) !(x %in% c("", "x")),
-    formals(addHtmlTableStyle) %>% names()
+    names(formals(addHtmlTableStyle))
   )
   if (sum(style_dots) > 0) {
     style_dots_list <- dots[style_dots]
@@ -368,6 +369,12 @@ htmlTable.default <- function(x,
       ", or set the rownames of the x argument."
     )
   }
+
+  row_highlight <- prEvalRowHighlights(
+    x = x_orig,
+    rnames = rnames,
+    row_highlight_rules = style_list$row.highlight
+  )
 
   if (is.null(header) && !is.null(colnames(x))) {
     header <- colnames(x)
@@ -820,6 +827,7 @@ htmlTable.default <- function(x,
   if (nrow(x) > 0) {
     for (row_nr in 1:nrow(x)) {
       rname_style <- attr(prepped_cell_css, "rnames")[row_nr]
+      highlight_style <- row_highlight[row_nr]
 
       # First check if there is a table spanner that should be applied
       if (!is.null(tspanner) &&
@@ -920,6 +928,10 @@ htmlTable.default <- function(x,
 
 
       cell_style <- rs <- paste("background-color:", row_clrs[row_nr])
+      if (!is.null(highlight_style) && highlight_style != "") {
+        rs <- c(rs, highlight_style)
+        cell_style <- c(cell_style, highlight_style)
+      }
       if (first_row) {
         rs %<>%
           c(top_row_style)

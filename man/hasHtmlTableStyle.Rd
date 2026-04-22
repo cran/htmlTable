@@ -19,16 +19,15 @@ If the attribute \code{htmlTable.style} is set it will check if
 the \code{style_name} exists and return a \code{logical}.
 }
 \examples{
-library(magrittr)
-
 mx <- matrix(1:4, ncol = 2)
 colnames(mx) <- LETTERS[1:2]
-mx \%>\%
-  addHtmlTableStyle(align = "l|r") \%>\%
+mx |>
+  addHtmlTableStyle(align = "l|r") |>
   hasHtmlTableStyle("align")
 }
 \seealso{
 Other htmlTableStyle: 
-\code{\link{addHtmlTableStyle}()}
+\code{\link{addHtmlTableStyle}()},
+\code{\link{highlightRow}()}
 }
 \concept{htmlTableStyle}
